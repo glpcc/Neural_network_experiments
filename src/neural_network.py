@@ -4,7 +4,7 @@ from exceptions.exceptions import IncorrectInputSize
 from time import perf_counter
 import math
 
-def no_op(a: float):
+def no_op(a: np.ndarray):
     return a
 
 class NeuralNetwork():
@@ -16,6 +16,7 @@ class NeuralNetwork():
                 self.__activation_functions = activation_functions
             else:
                 raise Exception('Incorrect activation functions list size')
+                
         self.__topology = topology
         self.__weights = [np.random.randn(j,topology[index]) for index,j in enumerate(topology[1:])]
         self.__biases = [np.random.randn(j,topology[index]) for index,j in enumerate(topology[1:])]
@@ -24,9 +25,10 @@ class NeuralNetwork():
     def feed_forward(self,input_values: np.ndarray):
         if len(input_values) == self.__topology[0]:
             self.__values[0] = input_values
-            for i in range(1,len(self.__topology)):
-                for j in range(self.__topology[i]):
-                    self.__values[i][j] = self.__activation_functions[i-1](np.sum(self.__weights[i-1][j]*self.__values[i-1] + self.__biases[i-1][j]))
+
+            for i in range(len(self.__topology)-1):
+                self.__values[i+1] = self.__activation_functions[i](np.sum(self.__values[i]*self.__weights[i]+self.__biases[i],axis=1))
+
             return self.__values[-1]
         else:
             raise IncorrectInputSize
@@ -43,9 +45,11 @@ class NeuralNetwork():
     def show_net_values(self):
         print(self.__values)
 
-test = NeuralNetwork([2,4,1],[math.tanh for i in range(2)])
+test = NeuralNetwork([2,2],[no_op for i in range(1)])
 a1 = perf_counter()
 print(test.feed_forward(np.array([2,2])))
 a2 = perf_counter()
-print(test.show_net_values())
+test.show_weights()
+test.show_biases()
+test.show_net_values()
 print(a2-a1)
