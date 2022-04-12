@@ -1,38 +1,54 @@
-from typing import Callable,Optional
+from typing import Optional
 import numpy as np
 from exceptions.exceptions import IncorrectInputSize
+from activation_functions.activation_functions import *
 from time import perf_counter
-import math
-
-def no_op(a: np.ndarray):
-    return a
 
 class NeuralNetwork():
-    def __init__(self,topology : list[int],activation_functions: Optional[list[Callable]] = None) -> None:
+    def __init__(self,topology : list[int],activation_functions: Optional[list[ActivationFunction]] = None) -> None:
         if activation_functions == None:
-            self.__activation_functions = [no_op for i in range(1,len(topology))]
+            self.__activation_functions = [no_op() for i in range(len(topology))]
         else:
-            if len(activation_functions) == len(topology) -1:
+            if len(activation_functions) == len(topology):
                 self.__activation_functions = activation_functions
             else:
                 raise Exception('Incorrect activation functions list size')
                 
         self.__topology = topology
-        self.__weights = [np.random.randn(j,topology[index]) for index,j in enumerate(topology[1:])]
-        self.__biases = [np.random.randn(j,topology[index]) for index,j in enumerate(topology[1:])]
-        self.__values = [np.zeros(j) for j in topology]
+        self.__weights = [np.random.randn(j,topology[index]) for index,j in enumerate(topology[1:])] # Creates an array of 2D numpy arrays of size Current_layer_neurons*Prev_layer_neurons
+        self.__biases = [np.random.randn(j) for j in topology[1:]]
+        # Fill these arrays with dummy values and then will be used on backward propagation
+        self.__activated_values = [np.zeros(j) for j in topology]
+        self.__weighted_inputs = [np.zeros(j) for j in topology]
+
 
     def feed_forward(self,input_values: np.ndarray):
-        if len(input_values) == self.__topology[0]:
-            self.__values[0] = input_values
+        '''
+            PRE:
+                The input must be a 2D array of inputs of size == input_neurons of the network
+            POST:
+                Returns an array of outputs for all the different values given
+        '''
+        if input_values.ndim != 2:
+            raise IncorrectInputSize('The Input is not 2 dimensional numpy array')
+        elif input_values.shape[1] != self.__topology[0]:
+            raise IncorrectInputSize('The data of each input doesnt mach the input neurons')
+    
+        self.__weighted_inputs[0] = input_values
+        self.__activated_values[0] = self.__activation_functions[0](input_values)
+        for i in range(len(self.__topology)-1):
+            self.__weighted_inputs[i+1] = np.dot(self.__activated_values[i],np.transpose(self.__weights[i]))+self.__biases[i]
+            self.__activated_values[i+1] = self.__activation_functions[i+1](self.__weighted_inputs[i+1]) 
 
-            for i in range(len(self.__topology)-1):
-                self.__values[i+1] = self.__activation_functions[i](np.sum(self.__values[i]*self.__weights[i]+self.__biases[i],axis=1))
+        return self.__activated_values[-1]
 
-            return self.__values[-1]
-        else:
-            raise IncorrectInputSize
 
+    def backward_propagation(self,batch: np.ndarray):
+        if batch.ndim != 2:
+            raise IncorrectInputSize('The batch is not 2 dimensional numpy array')
+
+        
+        
 
     def show_weights(self):
         for layer in self.__weights:
@@ -43,13 +59,12 @@ class NeuralNetwork():
             print(layer)
 
     def show_net_values(self):
-        print(self.__values)
+        print(f'{self.__activated_values=}')
+        print(f'{self.__weighted_inputs=}')
 
-test = NeuralNetwork([2,2],[no_op for i in range(1)])
-a1 = perf_counter()
-print(test.feed_forward(np.array([2,2])))
-a2 = perf_counter()
-test.show_weights()
-test.show_biases()
+input_activation = no_op()
+rest_activation = [tanh() for i in range(2)]
+
+test = NeuralNetwork([2,3,4],[input_activation,*rest_activation])
+print(test.feed_forward(np.array([[1,2],[2,1]])))
 test.show_net_values()
-print(a2-a1)
