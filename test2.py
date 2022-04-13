@@ -1,7 +1,9 @@
 import numpy as np
 from src.activation_functions.activation_functions import *
-a = np.array([[1,2,3],[2,4,5],[3,56,7]])
-b = np.array([[1,1,1],[2,2,2],[3,3,3]])
-
-print((np.square(a - b)).mean(axis=1))
-
+'''
+    HOW TO UPDATE WEIGHTS!!!!   
+'''
+loss_layer = np.array([[1],[2],[1]])
+activated_out = np.array([[8,2],[1,4],[3,2]])
+print(loss_layer.shape[0])
+print(np.dot(loss_layer.T,activated_out)/loss_layer.shape[0])
