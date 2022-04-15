@@ -56,10 +56,3 @@ class ReLu(ActivationFunction):
 
     def calculate_errors(self,prev_errors: np.ndarray,weighted_inputs: np.ndarray) -> np.ndarray:
         return prev_errors*(1*(weighted_inputs>0))
-
-
-s = softMax()
-n2 = np.array([[0,0,0],[1,4,3]])
-n3 = np.array([[1,1,1],[1,1,1]])
-print(s(n2))
-print(s.calculate_errors(n2,n3))
