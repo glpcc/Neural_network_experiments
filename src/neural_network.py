@@ -1,10 +1,7 @@
-from random import randint, random
 import numpy as np
-from exceptions.exceptions import IncorrectInputSize
-from activation_functions.activation_functions import *
-from cost_funtions.cost_functions import *
-from time import perf_counter
-from matplotlib import pyplot as plt
+from src.exceptions.exceptions import IncorrectInputSize
+from src.activation_functions.activation_functions import *
+from src.cost_funtions.cost_functions import *
 
 class NeuralNetwork():
 
@@ -51,11 +48,11 @@ class NeuralNetwork():
             raise IncorrectInputSize('The desired outputs is not 2 dimensional numpy array')
 
         outputs = self.feed_forward(batch)
-        layer_errors = self.__cost_function.derv(desired_outputs,outputs) * self.__activation_functions[-1].derv(self.__weighted_inputs[-1])
+        layer_errors =  self.__activation_functions[-1].calculate_errors(self.__cost_function.derv(desired_outputs,outputs),self.__weighted_inputs[-1])
         self._update_wb(layer_errors,len(self.__topology)-1)
         for layer_index in range(len(self.__topology)-2,0,-1):
             # Because the arent weights in the first layer I do not have to make layer_index + 1 (Im using backwards indexes)
-            layer_errors = np.dot(layer_errors,self.__weights[layer_index]) * self.__activation_functions[layer_index].derv(self.__weighted_inputs[layer_index])
+            layer_errors = self.__activation_functions[layer_index].calculate_errors(np.dot(layer_errors,self.__weights[layer_index]),self.__weighted_inputs[layer_index])
             self._update_wb(layer_errors,layer_index)
 
 
@@ -89,29 +86,3 @@ class NeuralNetwork():
     def learning_rate(self,rate):
         self.__learning_rate = rate
 
-input_activation = no_op()
-rest_activation = [no_op() for i in range(0)]
-output_activation = no_op()
-test = NeuralNetwork([2,1],[input_activation,*rest_activation,output_activation],CuadraticLoss(),1)
-epochs = 1000
-average_errors = []
-for i in range(epochs):
-    test.learning_rate = 0.001/(i+1)
-    batch_size = 5
-    input_values = np.empty((batch_size,2))
-    solutions = np.empty((batch_size,1))
-    for j in range(batch_size):
-        n1 = random()*100
-        n2 = random()*100
-        input_values[j] = np.array([n1,n2])
-        solutions[j] = np.array([n1+2*n2+2])
-    test.backward_propagation(input_values,solutions)
-    aux : float = 0
-    test_size = 100
-    for j in range(test_size):
-        n1 = random()*100
-        n2 = random()*100
-        aux += n1+2*n2+2 - test.feed_forward(np.array([[n1,n2]]))[0][0]
-    average_errors.append(aux/test_size)
-plt.plot(list(range(epochs))[100:],average_errors[100:])
-plt.show()
