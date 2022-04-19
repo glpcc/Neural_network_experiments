@@ -13,8 +13,8 @@ class NeuralNetwork():
         self.__learning_rate = learning_rate
         self.__cost_function = cost_function
         self.__topology = topology
-        self.__weights = [np.random.randn(j,topology[index]) for index,j in enumerate(topology[1:])] # Creates an array of 2D numpy arrays of size Current_layer_neurons*Prev_layer_neurons
-        self.__biases = [np.random.randn(j) for j in topology[1:]]
+        self.__weights = [np.random.rand(j,topology[index])/10 for index,j in enumerate(topology[1:])] # Creates an array of 2D numpy arrays of size Current_layer_neurons*Prev_layer_neurons
+        self.__biases = [np.zeros(j)/10 for j in topology[1:]]
         # Fill these arrays with dummy values and then will be used on backward propagation
         self.__activated_values = [np.zeros(j) for j in topology]
         self.__weighted_inputs = [np.zeros(j) for j in topology]
@@ -42,13 +42,17 @@ class NeuralNetwork():
 
 
     def backward_propagation(self,batch: np.ndarray,desired_outputs: np.ndarray):
+
         if batch.ndim != 2:
             raise IncorrectInputSize('The batch is not 2 dimensional numpy array')
         elif desired_outputs.ndim != 2:
             raise IncorrectInputSize('The desired outputs is not 2 dimensional numpy array')
 
         outputs = self.feed_forward(batch)
-        layer_errors =  self.__activation_functions[-1].calculate_errors(self.__cost_function.derv(desired_outputs,outputs),self.__weighted_inputs[-1])
+        if isinstance( self.__cost_function,CrossEntropy):
+            layer_errors = self.__cost_function.derv(desired_outputs,outputs)
+        else:
+            layer_errors =  self.__activation_functions[-1].calculate_errors(self.__cost_function.derv(desired_outputs,outputs),self.__weighted_inputs[-1])
         self._update_wb(layer_errors,len(self.__topology)-1)
         for layer_index in range(len(self.__topology)-2,0,-1):
             # Because the arent weights in the first layer I do not have to make layer_index + 1 (Im using backwards indexes)
@@ -86,3 +90,12 @@ class NeuralNetwork():
     def learning_rate(self,rate):
         self.__learning_rate = rate
 
+# topology: list[int] = [4,100,50,30,3]
+# learning_rate: float = 1e-2
+# activation_functions = [no_op(),*[ReLu() for i in range(len(topology)-2)],softMax()]
+# cost_function = CrossEntropy()
+# batch_size = 5
+# epochs = 1
+# net = NeuralNetwork(topology,activation_functions,cost_function,learning_rate)
+# inputs = np.array([[1,2,3,4],[4,4,3,4],[10,2,30,4]])
+# print(net.feed_forward(inputs))

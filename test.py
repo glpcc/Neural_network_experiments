@@ -1,12 +1,21 @@
+import random
+from src.cost_funtions.cost_functions import CuadraticLoss,CrossEntropy
+from src.neural_network import NeuralNetwork
+from src.activation_functions.activation_functions import ReLu,softMax,sigmoid,no_op
 import numpy as np
 
-n1 = np.array([[1,2],[3,2],[1,3],[1,1]])
-n2 = np.array([[[1,2],[3,2]],[[1,1],[1,1]],[[1,2],[3,2]],[[2,2],[2,2]]])
-print(np.tensordot(n2,n1,axes=0))
-# print(np.einsum('ji,mik->jmk',n1,n2))
 
+softmax = softMax()
+cre = CrossEntropy()
 
-n1 = np.array([3,2])
-n2 = np.array([[1,1],[1,1]])
-print(np.einsum('i,ij->j',n1,n2))
-print(np.dot(n1,n2))
+predicted = np.array([[0.1,1],[0.3,0.9]])
+
+test_predicted = np.array([[0.5,0.5]])
+actual = np.array([[1,0],[0,1]])
+
+print(test_predicted)
+soft_predicted = softmax(predicted)
+# error = cre(actual,soft_predicted)
+error_grad = cre.derv(actual,soft_predicted)
+
+print(error_grad)
