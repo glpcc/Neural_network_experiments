@@ -2,20 +2,21 @@ import numpy as np
 from src.exceptions.exceptions import IncorrectInputSize
 from src.activation_functions.activation_functions import ActivationFunction
 from src.cost_funtions.cost_functions import CostFunction
-
+from src.optimizers.optimizers import Optimizer
 class NeuralNetwork():
 
-    def __init__(self,topology : list[int],activation_functions: list[ActivationFunction],cost_function : CostFunction,learning_rate :float) -> None:
+    def __init__(self,topology : list[int],activation_functions: list[ActivationFunction],cost_function : CostFunction,optimizer: Optimizer,learning_rate :float) -> None:
         if len(activation_functions) == len(topology):
             self.__activation_functions = activation_functions
         else:
             raise Exception('Incorrect activation functions list size')
         self.__learning_rate = learning_rate
+        self.__optimizer = optimizer
         self.__cost_function = cost_function
         self.__topology = topology
         # Starts the weights with random values for diferent gradients
-        self.__weights = [np.random.rand(j,topology[index])/10 for index,j in enumerate(topology[1:])] # Creates an array of 2D numpy arrays of size Current_layer_neurons*Prev_layer_neurons
-        self.__biases = [np.zeros(j)/10 for j in topology[1:]]
+        self.__weights = [2*np.random.rand(j,topology[index])-1 for index,j in enumerate(topology[1:])] # Creates an array of 2D numpy arrays of size Current_layer_neurons*Prev_layer_neurons
+        self.__biases = [np.ones(j) for j in topology[1:]]
         # Fill these arrays with dummy values and then will be used on backward propagation
         self.__activated_values = [np.zeros(j) for j in topology]
         self.__weighted_inputs = [np.zeros(j) for j in topology]
@@ -64,9 +65,10 @@ class NeuralNetwork():
             The layer error would be a 2D array of all the errors for all inputs in the batch 
         '''
         # I changed the biases by the mean of the batches errors
-        self.__biases[layer_index-1] += layer_errors.mean(axis=0)*self.__learning_rate
+        # self.__biases[layer_index-1] += layer_errors.mean(axis=0)*self.__learning_rate
+        self.__biases[layer_index-1] += self.__optimizer.calculate_bias_change(layer_errors.sum(axis=0),layer_index-1)
         # I multiply the errors with the previous layer values and then take the average to change the weights
-        self.__weights[layer_index-1] += np.dot(layer_errors.T,self.__activated_values[layer_index-1])/layer_errors.shape[0]*self.__learning_rate
+        self.__weights[layer_index-1] += self.__optimizer.calculate_weight_change(np.dot(layer_errors.T,self.__activated_values[layer_index-1]),layer_index-1) 
 
     def show_weights(self):
         for layer in self.__weights:

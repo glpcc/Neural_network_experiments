@@ -2,3 +2,4 @@ __pycache__/
 src/activation_functions/__pycache__/
 src/cost_functions/__pycache__/
 src/exceptions/__pycache__/
+./test.py

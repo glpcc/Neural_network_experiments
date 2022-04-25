@@ -55,4 +55,4 @@ class ReLu(ActivationFunction):
         return array*(array>0)
 
     def calculate_errors(self,weighted_prev_errors: np.ndarray,weighted_inputs: np.ndarray) -> np.ndarray:
-        return weighted_prev_errors*(1*(weighted_inputs>0))
+        return weighted_prev_errors*(1*(weighted_inputs>=0))
