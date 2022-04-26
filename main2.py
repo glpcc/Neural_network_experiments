@@ -1,9 +1,9 @@
 import random
 
 from matplotlib import pyplot
-from src.cost_funtions.cost_functions import CuadraticLoss,CrossEntropy
+from src.cost_funtions.cost_function import CuadraticLoss,CrossEntropy
 from src.neural_network import NeuralNetwork
-from src.activation_functions.activation_functions import ReLu,softMax,sigmoid,no_op
+from src.activation_functions.activation_function import ReLu,softMax,sigmoid,no_op
 from src.optimizers.adam import Adam
 import numpy as np
 

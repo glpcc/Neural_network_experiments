@@ -1,8 +1,8 @@
 import numpy as np
 from src.exceptions.exceptions import IncorrectInputSize
-from src.activation_functions.activation_functions import ActivationFunction
-from src.cost_funtions.cost_functions import CostFunction
-from src.optimizers.optimizers import Optimizer
+from src.activation_functions.activation_function import ActivationFunction
+from src.cost_funtions.cost_function import CostFunction
+from src.optimizers.optimizer import Optimizer
 class NeuralNetwork():
 
     def __init__(self,topology : list[int],activation_functions: list[ActivationFunction],cost_function : CostFunction,optimizer: Optimizer,learning_rate :float) -> None:
@@ -56,7 +56,7 @@ class NeuralNetwork():
         # Update the last layer weights and biases and the backpropagate the errors to the rest of the layers
         self._update_wb(layer_errors,len(self.__topology)-1)
         for layer_index in range(len(self.__topology)-2,0,-1):
-            layer_errors = self.__activation_functions[layer_index].calculate_errors(np.dot(layer_errors,self.__weights[layer_index]),self.__weighted_inputs[layer_index])
+            layer_errors = self.__activation_functions[layer_index].calculate_gradient(np.dot(layer_errors,self.__weights[layer_index]),self.__weighted_inputs[layer_index])
             self._update_wb(layer_errors,layer_index)
 
     def _update_wb(self,layer_errors: np.ndarray,layer_index: int):

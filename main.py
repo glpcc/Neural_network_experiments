@@ -1,10 +1,9 @@
-from cProfile import label
-import random
 
+import random
 from matplotlib import pyplot
-from src.cost_funtions.cost_functions import CuadraticLoss,CrossEntropy
+from src.cost_funtions.cost_function import CuadraticLoss,CrossEntropy
 from src.neural_network import NeuralNetwork
-from src.activation_functions.activation_functions import ReLu,softMax,sigmoid,no_op
+from src.activation_functions.activation_function import ReLu,softMax,sigmoid,no_op
 from src.optimizers.adam import Adam
 import numpy as np
 np.set_printoptions(precision=2)
@@ -34,9 +33,9 @@ learning_rate: float =1e-2
 activation_functions = [no_op(),*[ReLu() for i in range(len(topology)-2)],softMax()]
 cost_function = CrossEntropy()
 optimizer = Adam(topology,learning_rate,0.9,0.999,1e-8)
-batch_size = 100
-test_size = 10
-epochs = 100
+batch_size = 40
+test_size = 20
+epochs = 300
 net = NeuralNetwork(topology,activation_functions,cost_function,optimizer,learning_rate)
 test_data = norm_data[120:]
 train_data = norm_data[:120]
@@ -75,4 +74,5 @@ for i in range(epochs):
 pyplot.plot(range(len(errors[0:])),errors[0:],label='Errors')
 pyplot.plot(range(len(errors[0:])),accuraccy[0:],label='Accuracy')
 pyplot.legend()
+pyplot.xlabel('Epochs')
 pyplot.show()
