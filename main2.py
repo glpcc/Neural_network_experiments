@@ -7,8 +7,8 @@ from src.activation_functions.activation_functions import ReLu,softMax,sigmoid,n
 from src.optimizers.adam import Adam
 import numpy as np
 
-topology: list[int] = [2,2,2,2]
-learning_rate: float = 1e-3
+topology: list[int] = [2,2,2]
+learning_rate: float = 1e-2
 activation_functions = [no_op(),*[ReLu() for i in range(len(topology)-2)],softMax()]
 cost_function = CrossEntropy()
 batch_size = 10
