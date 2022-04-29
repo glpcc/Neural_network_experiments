@@ -1,49 +1,59 @@
-import random
 
+import random
 from matplotlib import pyplot
-from src.cost_funtions.cost_functions import CuadraticLoss,CrossEntropy
+from src.layers.dense import Dense
+from src.activation_functions.relu import ReLu
+from src.activation_functions.softmax import SoftMax
 from src.neural_network import NeuralNetwork
-from src.activation_functions.activation_functions import ReLu,softMax,sigmoid,no_op
 from src.optimizers.adam import Adam
+from src.layers.layer import Layer
+from src.cost_funtions.categorical_cross_entropy import CategoricalCrossEntropy
 import numpy as np
 
-topology: list[int] = [2,2,2]
-learning_rate: float = 1e-2
-activation_functions = [no_op(),*[ReLu() for i in range(len(topology)-2)],softMax()]
-cost_function = CrossEntropy()
-batch_size = 10
+np.set_printoptions(precision=2)
+
+
+learning_rate: float =1e-3
+inputs = 2
+outputs = 2
+layers: list[Layer] = [
+    Dense(ReLu,Adam,inputs,2,learning_rate=learning_rate),
+    Dense(SoftMax,Adam,2,outputs,learning_rate=learning_rate)
+]
+
+cost_function = CategoricalCrossEntropy()
+batch_size = 5
 test_size = 20
-epochs = 500
-optimizer = Adam(topology,learning_rate,0.9,0.999,1e-8)
-net = NeuralNetwork(topology,activation_functions,cost_function,optimizer,learning_rate)
+epochs = 300
+net = NeuralNetwork(layers,cost_function)
 errors = []
+accuraccy = []
 for i in range(epochs):
-    inputs = np.zeros((batch_size,2))
-    solutions = np.zeros((batch_size,2))
+    batch_inputs = np.zeros((batch_size,inputs))
+    batch_solutions = np.zeros((batch_size,outputs))
     for j in range(batch_size):
-        inputs[j] = np.array([random.randint(0,100) for i in range(2)])
-        if inputs[j][0] > inputs[j][1]:
-            solutions[j] = np.array([0,1])
-        else:
-            solutions[j] = np.array([1,0])
+        batch_inputs[j] = np.array([random.randint(0,100),random.randint(0,100)])
+        solutions = np.array([1,0]) if batch_inputs[j][0] >= batch_inputs[j][1] else np.array([0,1])
+        batch_solutions[j] = np.array(solutions)
 
-    net.backward_propagation(inputs,solutions)
+    net.backward_propagation(batch_inputs,batch_solutions)
 
-    inputs = np.zeros((test_size,2))
-    solutions = np.zeros((test_size,2))
+    batch_inputs = np.zeros((test_size,inputs))
+    batch_solutions = np.zeros((test_size,outputs))
     for j in range(test_size):
-        inputs[j] = np.array([random.randint(0,100) for i in range(2)])
-        if inputs[j][0] > inputs[j][1]:
-            solutions[j] = np.array([0,1])
-        else:
-            solutions[j] = np.array([1,0])
-    predictions = net.feed_forward(inputs)
-    errors.append(cost_function(solutions,predictions).mean())
-    # print(f'Error:{cost_function(solutions,predictions).mean()}')
-    random_prediction = predictions[2]
-    random_solution = solutions[2]
-    print(f'Predicted:{random_prediction}, Actual:{random_solution}')
+        batch_inputs[j] = np.array([random.randint(0,100),random.randint(0,100)])
+        solutions = np.array([1,0]) if batch_inputs[j][0] >= batch_inputs[j][1] else np.array([0,1])
+        batch_solutions[j] = np.array(solutions)
+    predicted_results = net.feed_forward(batch_inputs)
+    
+    errors.append(cost_function(batch_solutions,predicted_results).mean())
+    acc = np.where(np.argmax(predicted_results,axis=1)==np.argmax(batch_solutions,axis=1))[0].shape[0]/test_size
+    accuraccy.append(acc)
+    print(f'Epoch:{i},accuracy{round(acc*100,2)}% Error:{round(cost_function(batch_solutions,predicted_results).mean(),2)},Predicted:{predicted_results[5]},actual:{batch_solutions[5]}')
 
-net.show_weights()
-pyplot.plot(range(len(errors[:])),errors[:])
+
+pyplot.plot(range(len(errors[0:])),errors[0:],label='Errors')
+pyplot.plot(range(len(errors[0:])),accuraccy[0:],label='Accuracy')
+pyplot.legend()
+pyplot.xlabel('Epochs')
 pyplot.show()
