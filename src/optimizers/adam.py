@@ -3,24 +3,15 @@ import numpy as np
 
 
 class Adam(Optimizer):
-    def __init__(self,topology: list[int],learning_rate: float,beta1: float,beta2: float,epsilon: float) -> None:
-        self.__weights_m = [np.zeros((j,topology[index])) for index,j in enumerate(topology[1:])]
-        self.__weights_v = [np.zeros((j,topology[index])) for index,j in enumerate(topology[1:])]
-        self.__biases_m = [np.zeros(j) for j in topology[1:]]
-        self.__biases_v = [np.zeros(j) for j in topology[1:]]
-        self.__beta1 = beta1
-        self.__beta2 = beta2
-        self.__epsilon = epsilon
-        self.__learning_rate = learning_rate
-        self.epoch = 2
+    def __init__(self,parameter_shape: tuple[int,...],**kwargs) -> None:
+        self.__parameter_m = np.zeros(parameter_shape)
+        self.__parameter_v = np.zeros(parameter_shape)
+        self.beta1 = kwargs.get('beta1',0.9)
+        self.beta2 = kwargs.get('beta2',0.999)
+        self.epsilon = kwargs.get('epsilon',1e-8)
+        self.learning_rate = kwargs.get('learning_rate',1e-2)
 
-    def calculate_weight_change(self,average_gradient: np.ndarray,layer: int)-> np.ndarray:
-        self.epoch += 1
-        self.__weights_m[layer] = self.__beta1*self.__weights_m[layer] + (1-self.__beta1)*average_gradient
-        self.__weights_v[layer] = self.__beta2*self.__weights_v[layer] + (1-self.__beta2)*np.square(average_gradient)
-        return self.__learning_rate*(self.__weights_m[layer]/(np.sqrt(self.__weights_v[layer])+self.__epsilon))
-
-    def calculate_bias_change(self,average_gradient: np.ndarray,layer: int)-> np.ndarray:
-        self.__biases_m[layer] = self.__beta1*self.__biases_m[layer] + (1-self.__beta1)*average_gradient
-        self.__biases_v[layer] = self.__beta2*self.__biases_v[layer] + (1-self.__beta2)*np.square(average_gradient)
-        return self.__learning_rate*(self.__biases_m[layer]/(np.sqrt(self.__biases_v[layer])+self.__epsilon))
+    def calculate_parameter_change(self,gradient: np.ndarray)-> np.ndarray:
+        self.__parameter_m = self.beta1*self.__parameter_m + (1-self.beta1)*gradient
+        self.__parameter_v = self.beta2*self.__parameter_v + (1-self.beta2)*np.square(gradient)
+        return self.learning_rate*(self.__parameter_m/(np.sqrt(self.__parameter_v)+self.epsilon))

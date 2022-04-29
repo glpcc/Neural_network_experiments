@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 class Optimizer(ABC):
+
     @abstractmethod
-    def calculate_weight_change(self,average_gradient: np.ndarray,layer: int) -> np.ndarray:
+    def __init__(self,parameter_shape,**kwargs) -> None:
         ...
 
     @abstractmethod
-    def calculate_bias_change(self,average_gradient: np.ndarray,layer: int)-> np.ndarray:
+    def calculate_parameter_change(self,gradient: np.ndarray) -> np.ndarray:
         ...

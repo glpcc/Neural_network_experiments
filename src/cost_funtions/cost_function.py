@@ -9,7 +9,7 @@ class CostFunction(ABC):
         ...
 
     @abstractmethod
-    def derv(self,desired_values: np.ndarray,output_values: np.ndarray,output_activation_function: ActivationFunction) -> np.ndarray:
+    def derv(self,desired_values: np.ndarray,output_values: np.ndarray) -> np.ndarray:
         ...
 
 
