@@ -42,11 +42,3 @@ class Dense(Layer):
         self.__weights += self.__weight_optimizer.calculate_parameter_change(np.dot(layer_gradients.T,prev_activated_values)) 
         self.__biases += self.__bias_optimizer.calculate_parameter_change(layer_gradients.sum(axis=0))
     
-
-    @property
-    def activation_function(self) -> ActivationFunction:
-        return self.__activation_function
-
-    @property
-    def activated_values(self) -> np.ndarray:
-        return self.__activated_values
