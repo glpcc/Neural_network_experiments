@@ -11,8 +11,7 @@ class Convolutional2D(Layer):
         This is a 2D concolutional layer
     '''
 
-    def __init__(self, activation_function: Type[ActivationFunction], optimizer: Type[Optimizer], /
-                 num_filters: int,filter_shape: tuple[int,...],input_img_shape: tuple[int,...], **kwargs) -> None:
+    def __init__(self, activation_function: Type[ActivationFunction], optimizer: Type[Optimizer],num_filters: int,filter_shape: tuple[int,...],input_img_shape: tuple[int,...], **kwargs) -> None:
         num_outputs = kwargs.get('num_outputs',None)
         self.__activation_function = activation_function()
         self.__filter_optimizer = optimizer((num_filters,*filter_shape),**kwargs)
