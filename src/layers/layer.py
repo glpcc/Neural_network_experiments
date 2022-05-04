@@ -15,6 +15,10 @@ class Layer(ABC):
         ...
 
     @abstractmethod
-    def backward_propagate(self,prev_activated_values: np.ndarray,layer_gradient: np.ndarray)-> np.ndarray:
+    def backward_propagate(self, prev_activated_values: np.ndarray, prev_weighted_errors: np.ndarray)-> np.ndarray:
         ...
 
+    @property
+    @abstractmethod
+    def activated_values(self)-> np.ndarray:
+        ...
