@@ -8,32 +8,34 @@ from src.cost_funtions.categorical_cross_entropy import CategoricalCrossEntropy
 from scipy.signal import convolve
 import numpy as np
 from matplotlib import pyplot
+np.set_printoptions(precision=2)
+
 filter_shape = (2,2)
-num_filters = 1
+num_filters = 2
 img_shape = (3,3)
 cost_function = CategoricalCrossEntropy()
 layers: list[Convolutional2D] = [
-	Convolutional2D(No_op,Adam,num_filters,filter_shape,img_shape,learning_rate=1e-3)
+	Convolutional2D(No_op,Adam,num_filters,filter_shape,img_shape,learning_rate=1e-2)
 ]
 net = NeuralNetwork(layers,cost_function)
 
 test_imgs = np.arange(9).reshape(1,3,3)
-objective_kernel = np.array([[1,0],[0,1]])
-expected_out = convolve(test_imgs[0],np.rot90(objective_kernel,2),mode='valid')
-
+objective_kernels = np.random.randn(2,2,2)
+print(objective_kernels)
 batches = 1000
 errors = []
 errors2 = []
 for i in range(batches):
 	test_imgs = np.random.randn(1,3,3)*10
-	expected_out = convolve(test_imgs[0],np.rot90(objective_kernel,2),mode='valid')
-	output = layers[0].forward_propagate(test_imgs)
-	error = expected_out.reshape(1,4) - output
-	if -1 <error.sum() < 1:
-		print(layers[0].filters)
+	expected_outs = np.empty((2,2,2))
+	for i in range(len(objective_kernels)):
+		expected_outs[i] = convolve(test_imgs[0],np.rot90(objective_kernels[i],2),mode='valid')
+	outputs = layers[0].forward_propagate(test_imgs)
+	error = expected_outs.reshape(1,8) - outputs
 	errors.append(error.sum())
-	errors2.append((np.square(expected_out.reshape(1,4) - output)).mean(axis=1))
+	errors2.append((np.square(expected_outs.reshape(1,8) - outputs)).mean(axis=1))
 	layers[0].backward_propagate(test_imgs,error)
+
 print(layers[0].filters)
 pyplot.plot(list(range(batches)),errors)
 pyplot.show()

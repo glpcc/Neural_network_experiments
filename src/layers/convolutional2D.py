@@ -36,6 +36,7 @@ class Convolutional2D(Layer):
         # Initialize this array for storing the results of each epoch for use in backprop
         self.__weighted_inputs: np.ndarray 
         self.__activated_values: np.ndarray
+    
     def forward_propagate(self, prev_activated_values: np.ndarray) -> np.ndarray:
         '''
             Im using scipy convolve because of the massive performance improvement(>10x) compared to python loops and better performance for bigger filter
@@ -71,8 +72,8 @@ class Convolutional2D(Layer):
         filter_gradients = np.empty((input_data.shape[0],self.__num_filters,*self.__filter_shape))
         for i in range(len(input_data)):
             for j in range(len(layer_gradients[i])):
-                input_gradient += convolve(self.filters[j],layer_gradients[i][j],mode='full')
-                filter_gradients[i][j] = convolve(input_data[i],layer_gradients[i][j],mode='valid')
+                input_gradient += convolve(np.rot90(self.filters[j],2),np.rot90(layer_gradients[i][j],2),mode='full')
+                filter_gradients[i][j] = convolve(input_data[i],np.rot90(layer_gradients[i][j],2),mode='valid')
         self._update_filters(filter_gradients.sum(axis=0))
         return input_gradient
 
