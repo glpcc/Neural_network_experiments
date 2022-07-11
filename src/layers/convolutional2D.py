@@ -82,7 +82,7 @@ class Convolutional2D(Layer):
             raise ValueError('The filter gadient is not in the correct shape')
         else:
             filter_delta = self.__filter_optimizer.calculate_parameter_change(filter_gradient)
-            print(np.count_nonzero(filter_gradient))
+            # print(np.count_nonzero(filter_gradient))
             for fltr,delta in zip(self.filters,filter_delta):
                 fltr += delta
 

@@ -1,3 +1,4 @@
+from cProfile import label
 from keras.datasets import mnist
 from src.activation_functions.softmax import SoftMax
 from src.cost_funtions.cost_function import CostFunction
@@ -23,18 +24,20 @@ second_image_shape = (image_shape[0]-first_filter_shape[0]+1,image_shape[1]-firs
 first_dense_inputs = (second_image_shape[0]-second_filter_shape[0]+1)*(second_image_shape[1]-second_filter_shape[1]+1) # 24*24 = 576
 cost_function: CostFunction = CategoricalCrossEntropy()
 layers: list[Layer] = [
-    Convolutional2D(ReLu,Adam,num_filters,first_filter_shape,image_shape,learning_rate=1e-7),
+    Convolutional2D(ReLu,Adam,num_filters,first_filter_shape,image_shape,learning_rate=1e-5),
     Dense(ReLu,Adam, 26*26*num_filters, 100, learning_rate=1e-3),
     Dense(SoftMax,Adam,100,10,learning_rate=1e-3 )
 ]
 net = NeuralNetwork(layers,cost_function)
 
-batch_size = 5
-number_of_batches_per_epoch = 5
-number_of_epochs = 30
+batch_size = 10
+number_of_batches_per_epoch = 10
+number_of_epochs = 100
 train_index = 0
 test_index = 0
 test_size = 10
+all_errors = []
+all_accuracy = []
 for epoch_number in range(number_of_epochs):
     for batch_number in range(number_of_batches_per_epoch):
         # TODO Maybe make it random 
@@ -51,7 +54,18 @@ for epoch_number in range(number_of_epochs):
     net_test_y = np.zeros((len(net_test_solutions),10))
     for i,j in enumerate(net_test_y):
         j[net_test_solutions[i]] = 1
-    erros, output = net.test(net_test_x,net_test_y)
-    print(f'Epoch:{epoch_number} Output:{output[0]} Actual:{net_test_y[0]} \n Error:{erros.mean()}')
-    print(layers[0].filters[0])
+    errors, output = net.test(net_test_x,net_test_y)
+    print(f'Epoch:{epoch_number} Output:{output[0]} Actual:{net_test_y[0]} \n Error:{errors.mean()}')
+    all_errors.append(errors.mean())
+    acc = 0
+    for i, out in enumerate(output): 
+        if np.argmax(out) == np.argmax(net_test_y[i]):
+            acc += 1
+    all_accuracy.append(acc/10)
     test_index += test_size 
+
+print(f'Average acc:{np.mean(all_accuracy)}, Average err:{np.mean(all_errors)}')
+pyplot.plot(list(range(number_of_epochs)), all_errors, label='errors')
+pyplot.plot(list(range(number_of_epochs)), all_accuracy, label='accuracy')
+pyplot.legend()
+pyplot.show()
