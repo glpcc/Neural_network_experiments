@@ -12,7 +12,7 @@ class Dense(Layer):
         # Maybe add specific bias optimizer options later and even an specific optimizer
         self.__bias_optimizer = optimizer(num_outputs,**kwargs)
         # Initialize weights and biases
-        self.__weights = 2*np.random.randn(num_outputs,num_inputs) - 1 # The operations are to ensure values in the interval [-1,1]
+        self.__weights = np.random.randn(num_outputs,num_inputs)/5 - 0.1  # The operations are to ensure values in the interval [-1,1]
         self.__biases = np.zeros(num_outputs)
         # Initialize the activated values and weighted inputs to zero for changing in the forward propagation
         self.__activated_values = np.zeros(num_outputs)

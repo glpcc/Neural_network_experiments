@@ -18,7 +18,7 @@ class Convolutional2D(Layer):
         self.__num_filters = num_filters
         self.__filter_shape = filter_shape
         # Research how to initialize if not working
-        self.__filters = 2*np.random.randn(num_filters,*filter_shape) -1
+        self.__filters = np.random.randn(num_filters,*filter_shape)/20 - 0.1
         #
         # Add bias later
         #
@@ -68,17 +68,16 @@ class Convolutional2D(Layer):
         layer_gradients = self.__activation_function.calculate_gradient(prev_weighted_errors,self.__weighted_inputs)
         layer_gradients = self._adapt_gradient_shape(layer_gradients)
         # Calculate the filter gradient and input_gradient
-        input_gradient = np.empty(self.__input_img_shape)
-        filter_gradients = np.empty((input_data.shape[0],self.__num_filters,*self.__filter_shape))
+        input_gradients = np.zeros((input_data.shape[0], *self.__input_img_shape))
+        filter_gradients = np.zeros((input_data.shape[0],self.__num_filters,*self.__filter_shape))
         for i in range(len(input_data)):
             for j in range(len(layer_gradients[i])):
-                input_gradient += convolve(np.rot90(self.filters[j],2),np.rot90(layer_gradients[i][j],2),mode='full')
-                filter_gradients[i][j] = convolve(input_data[i],np.rot90(layer_gradients[i][j],2),mode='valid')
+                input_gradients[i] += convolve(np.rot90(self.filters[j],2),np.rot90(layer_gradients[i][j],2),mode='full')
+                filter_gradients[i][j] = convolve(input_data[i],np.rot90(layer_gradients[i][j],2),mode='valid')      
         self._update_filters(filter_gradients.sum(axis=0))
-        return input_gradient
+        return input_gradients.reshape((input_data.shape[0], self.__input_img_shape[0]*self.__input_img_shape[1]))
 
     def _update_filters(self,filter_gradient: np.ndarray)-> None:
-        # USE OPTIMIZER!!!!!
         if filter_gradient.shape != (self.__num_filters,*self.__filter_shape):
             raise ValueError('The filter gadient is not in the correct shape')
         else:
@@ -93,7 +92,7 @@ class Convolutional2D(Layer):
         elif input.shape[1] == self.__input_img_shape[0]*self.__input_img_shape[1]:
             input_data = input.reshape(input.shape[0],*self.__input_img_shape) 
         else:
-            raise ValueError('Incorrect input size')
+            raise ValueError(f'Incorrect input size the shape given {input.shape} but should be {self.__input_img_shape}')
 
         return input_data
     

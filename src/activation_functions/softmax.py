@@ -15,5 +15,5 @@ class SoftMax(ActivationFunction):
         for i in range(weighted_prev_errors.shape[0]):
             temp = np.reshape(softmax[i], (1, -1))
             errors[i] = weighted_prev_errors[i].reshape(
-                (1, -1))@(temp * np.identity(temp.size) - temp.transpose() @ temp)
+                (1, -1))@(temp * np.identity(temp.size) - temp.T @ temp)
         return errors
