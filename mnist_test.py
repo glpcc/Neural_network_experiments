@@ -17,21 +17,21 @@ from matplotlib import pyplot
 
 first_filter_shape = (3,3)
 second_filter_shape = (3,3)
-num_filters = 10
+num_filters = 1
 image_shape = (28,28)
 second_image_shape = (image_shape[0]-first_filter_shape[0]+1,image_shape[1]-first_filter_shape[1]+1) #(26,26)
 first_dense_inputs = (second_image_shape[0]-second_filter_shape[0]+1)*(second_image_shape[1]-second_filter_shape[1]+1) # 24*24 = 576
 cost_function: CostFunction = CategoricalCrossEntropy()
 layers: list[Layer] = [
-    Convolutional2D(ReLu,Adam,num_filters,first_filter_shape,image_shape,learning_rate=1e-3),
+    Convolutional2D(ReLu,Adam,num_filters,first_filter_shape,image_shape,learning_rate=1e-7),
     Dense(ReLu,Adam, 26*26*num_filters, 100, learning_rate=1e-3),
     Dense(SoftMax,Adam,100,10,learning_rate=1e-3 )
 ]
 net = NeuralNetwork(layers,cost_function)
 
-batch_size = 10
+batch_size = 5
 number_of_batches_per_epoch = 5
-number_of_epochs = 100
+number_of_epochs = 30
 train_index = 0
 test_index = 0
 test_size = 10

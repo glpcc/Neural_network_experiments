@@ -18,7 +18,7 @@ class Convolutional2D(Layer):
         self.__num_filters = num_filters
         self.__filter_shape = filter_shape
         # Research how to initialize if not working
-        self.__filters = np.random.randn(num_filters,*filter_shape)/20 - 0.1
+        self.__filters = (2*np.random.randn(num_filters,*filter_shape) -1)/100
         #
         # Add bias later
         #
@@ -82,6 +82,7 @@ class Convolutional2D(Layer):
             raise ValueError('The filter gadient is not in the correct shape')
         else:
             filter_delta = self.__filter_optimizer.calculate_parameter_change(filter_gradient)
+            print(np.count_nonzero(filter_gradient))
             for fltr,delta in zip(self.filters,filter_delta):
                 fltr += delta
 
